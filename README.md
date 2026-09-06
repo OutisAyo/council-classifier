@@ -9,7 +9,7 @@ covers the full lifecycle: data exploration, model development across two predic
 hybrid ML and rule-based urgency layer, a decision-support layer, a Streamlit dashboard, and a
 containerised FastAPI service deployed to AWS ECS Fargate.
 
-[![CI](https://github.com/OutisAyo/council-classifier-/actions/workflows/ci.yml/badge.svg)](https://github.com/OutisAyo/council-classifier-/actions/workflows/ci.yml)
+[![CI](https://github.com/OutisAyo/council-classifier/actions/workflows/ci.yml/badge.svg)](https://github.com/OutisAyo/council-classifier/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.11-blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -159,8 +159,8 @@ council-classifier/
 ## Getting started
 
 ```bash
-git clone https://github.com/OutisAyo/council-classifier-.git
-cd council-classifier-
+git clone https://github.com/OutisAyo/council-classifier.git
+cd council-classifier
 
 # the trained pipelines (~200 MB) are stored with Git LFS
 git lfs install
