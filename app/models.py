@@ -1,21 +1,44 @@
 """
-Loads all trained models and supporting components once at startup.
-Keeping this separate means the models load a single time, not on every request.
+Loads all trained models and supporting components once, on first use.
+
+Loading is lazy so that importing this package (for tests, linting, ``--help``)
+does not require the ~200 MB of pickled artifacts to be present. The first call
+to :func:`get_store` builds the singleton; every later call returns it.
 """
-import joblib
 import pickle
-import pandas as pd
 from pathlib import Path
-from sklearn.metrics.pairwise import cosine_similarity
+
+import joblib
+import pandas as pd
 
 # Path to the models folder, relative to the project root
 MODELS_DIR = Path(__file__).parent.parent / "models"
+
+REQUIRED_FILES = (
+    "department_pipeline_rf.pkl",
+    "priority_pipeline_final.pkl",
+    "retrieval_vectorizer.pkl",
+    "response_templates.pkl",
+    "urgency_lexicon.pkl",
+    "dataset_for_retrieval.pkl",
+)
+
+
+class ModelsNotFoundError(RuntimeError):
+    """Raised when the trained artifacts are missing from ``models/``."""
 
 
 class ModelStore:
     """Holds all loaded models and data in one place."""
 
-    def __init__(self):
+    def __init__(self) -> None:
+        missing = [f for f in REQUIRED_FILES if not (MODELS_DIR / f).exists()]
+        if missing:
+            raise ModelsNotFoundError(
+                f"Missing model artifacts in {MODELS_DIR}: {', '.join(missing)}. "
+                "Run `python scripts/download_models.py` to fetch them."
+            )
+
         self.department_pipeline = joblib.load(MODELS_DIR / "department_pipeline_rf.pkl")
         self.priority_pipeline = joblib.load(MODELS_DIR / "priority_pipeline_final.pkl")
         self.retrieval_vectorizer = joblib.load(MODELS_DIR / "retrieval_vectorizer.pkl")
@@ -37,5 +60,12 @@ class ModelStore:
         ]
 
 
-# A single shared instance the rest of the app imports and uses
-store = ModelStore()
+_store: "ModelStore | None" = None
+
+
+def get_store() -> "ModelStore":
+    """Return the shared :class:`ModelStore`, building it on first call."""
+    global _store
+    if _store is None:
+        _store = ModelStore()
+    return _store
