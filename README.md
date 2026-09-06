@@ -224,9 +224,13 @@ The image copies `models/` in at build time, so run `git lfs pull` first.
 
 ### Deployment
 
-The container was pushed to Amazon ECR and run as an **AWS ECS Fargate** service behind an
-Application Load Balancer (health check on `/health`) as a cloud-deployment learning exercise.
-The same image runs unchanged locally, on Fargate, or on any container host.
+The image was pushed to Amazon ECR and run as an **AWS ECS Fargate** service with a public
+IP, reachable directly on port 8000, as a cloud-deployment learning exercise. The same image
+runs unchanged locally, on Fargate, or on any container host.
+
+`POST /classify` served from the Fargate task:
+
+![/classify on the AWS ECS Fargate endpoint](assets/fargate-deployment.png)
 
 ## Tech stack
 
