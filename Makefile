@@ -6,8 +6,8 @@ install:            ## Install API runtime dependencies
 install-dev:        ## Install test + lint dependencies
 	pip install -r requirements-dev.txt
 
-models:            ## Download trained model artifacts from the GitHub release
-	python scripts/download_models.py
+models:            ## Pull the trained model artifacts (Git LFS)
+	git lfs pull
 
 run:               ## Start the FastAPI service with autoreload
 	uvicorn app.main:app --reload

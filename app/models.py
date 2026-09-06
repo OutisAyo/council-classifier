@@ -36,7 +36,7 @@ class ModelStore:
         if missing:
             raise ModelsNotFoundError(
                 f"Missing model artifacts in {MODELS_DIR}: {', '.join(missing)}. "
-                "Run `python scripts/download_models.py` to fetch them."
+                "They are stored via Git LFS — run `git lfs pull` to fetch them."
             )
 
         self.department_pipeline = joblib.load(MODELS_DIR / "department_pipeline_rf.pkl")

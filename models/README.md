@@ -1,12 +1,15 @@
 # Model artifacts
 
-The trained pipelines are **not stored in git** — one is 167 MB, over GitHub's
-100 MB per-file limit. They are published as assets on the
-[`v1.0.0` release](https://github.com/OutisAyo/council-classifier-/releases/tag/v1.0.0).
+The trained pipelines are stored in this repository via **[Git LFS](https://git-lfs.com/)**
+(the priority pipeline is 167 MB, over GitHub's 100 MB per-file limit for regular files).
 
 ```bash
-python scripts/download_models.py      # or: make models
+git lfs install      # once per machine
+git lfs pull         # fetch the actual files after cloning
 ```
+
+`git clone` on a machine with Git LFS installed pulls them automatically. `make models`
+runs `git lfs pull` for you.
 
 | File | Size | Built in | Contents |
 |---|---|---|---|

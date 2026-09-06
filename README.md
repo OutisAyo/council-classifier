@@ -140,9 +140,7 @@ council-classifier-/
 ├── dashboard/
 │   └── app.py               Streamlit UI (classification + data insights)
 ├── notebooks/               01–18, the full development narrative
-├── scripts/
-│   └── download_models.py   fetch trained artifacts from the GitHub release
-├── models/                  *.pkl artifacts (git-ignored — see models/README.md)
+├── models/                  *.pkl artifacts, stored via Git LFS (see models/README.md)
 ├── tests/                   pytest suite (schema + API)
 ├── Dockerfile
 ├── Makefile
@@ -157,15 +155,17 @@ council-classifier-/
 git clone https://github.com/OutisAyo/council-classifier-.git
 cd council-classifier-
 
+# the trained pipelines (~200 MB) are stored with Git LFS
+git lfs install
+git lfs pull
+
 python -m venv venv
 source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-
-# fetch the trained model artifacts (~200 MB) from the GitHub release
-python scripts/download_models.py
 ```
 
-`make install && make models` does the same thing.
+With Git LFS installed before cloning, the `git clone` fetches the models for you;
+`git lfs pull` (or `make models`) is only needed if LFS was set up afterwards.
 
 ### Run the API
 
@@ -209,7 +209,7 @@ docker build -t council-classifier .
 docker run -p 8000:8000 council-classifier
 ```
 
-The image copies `models/` in at build time, so run `python scripts/download_models.py` first.
+The image copies `models/` in at build time, so run `git lfs pull` first.
 
 ### Deployment
 

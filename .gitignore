@@ -2,11 +2,6 @@
 venv/
 .venv/
 
-# Trained model artifacts (fetched via scripts/download_models.py)
-models/*
-!models/README.md
-*.pkl
-
 # Python
 __pycache__/
 *.pyc

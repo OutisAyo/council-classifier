@@ -1,4 +1,6 @@
 * text=auto eol=lf
 *.ipynb text eol=lf
 *.png binary
-*.pkl binary
+
+# Trained model artifacts are stored via Git LFS (run `git lfs pull` after clone)
+models/*.pkl filter=lfs diff=lfs merge=lfs -text
