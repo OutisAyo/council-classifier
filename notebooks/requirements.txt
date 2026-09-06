@@ -1,0 +1,12 @@
+# Dependencies for the notebooks (01-18) and the Streamlit dashboard.
+jupyter>=1.0
+notebook>=7.0
+pandas>=2.2.2
+numpy>=2.0.0
+scikit-learn==1.6.1
+xgboost==2.1.1
+joblib==1.4.2
+scipy>=1.13
+matplotlib>=3.8
+seaborn>=0.13
+streamlit>=1.37
