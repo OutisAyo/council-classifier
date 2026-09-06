@@ -191,7 +191,7 @@ curl -s -X POST http://127.0.0.1:8000/classify \
 ```jsonc
 {
   "department": "Pollution Division",
-  "model_priority": "LOW",
+  "model_priority": "HIGH",
   "final_priority": "HIGH",
   "urgency_escalated": true,
   "urgency_terms": ["urgent"],
@@ -201,6 +201,10 @@ curl -s -X POST http://127.0.0.1:8000/classify \
   ]
 }
 ```
+
+The same call in the interactive Swagger docs at `/docs`:
+
+![POST /classify in the Swagger UI](assets/api-docs.png)
 
 ### Run the dashboard
 
