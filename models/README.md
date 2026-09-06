@@ -13,8 +13,8 @@ runs `git lfs pull` for you.
 
 | File | Size | Built in | Contents |
 |---|---|---|---|
-| `department_pipeline_rf.pkl` | ~10 MB | nb 07 | `Pipeline(TfidfVectorizer -> RandomForestClassifier)` — predicts `assigned_department` from request text |
-| `priority_pipeline_final.pkl` | ~167 MB | nb 14 | `Pipeline(ColumnTransformer[TF-IDF text + passthrough day_of_week/month] -> class-weighted RandomForestClassifier)` — predicts `priority` |
+| `department_pipeline_rf.pkl` | ~10 MB | nb 07 | `Pipeline(TfidfVectorizer -> RandomForestClassifier)` predicting `assigned_department` from request text |
+| `priority_pipeline_final.pkl` | ~167 MB | nb 14 | `Pipeline(ColumnTransformer[TF-IDF text + passthrough day_of_week/month] -> class-weighted RandomForestClassifier)` predicting `priority` |
 | `retrieval_vectorizer.pkl` | ~24 KB | nb 15 | `TfidfVectorizer` (max 1500 features) used to embed requests for similarity search |
 | `dataset_for_retrieval.pkl` | ~16 MB | nb 15 | cleaned 254k-row DataFrame (`request_text`, `assigned_department`, `priority`, `date_received`, `date_closed`, ...) for retrieval + duplicate checks |
 | `response_templates.pkl` | ~4 KB | nb 15 | `dict[department][priority] -> str` acknowledgement templates |

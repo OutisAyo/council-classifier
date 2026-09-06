@@ -39,7 +39,7 @@ app = FastAPI(
 @app.get("/health")
 @app.get("/")
 def health():
-    """Health check — confirms the API is running."""
+    """Health check. Confirms the API is running."""
     return {"status": "online", "service": "council-request-classifier"}
 
 

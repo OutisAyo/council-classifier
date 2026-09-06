@@ -77,7 +77,7 @@ with tab1:
 
             if result["urgency_escalated"]:
                 st.warning(
-                    "⚠️ Escalated to HIGH — urgency language detected: "
+                    "⚠️ Escalated to HIGH. Urgency language detected: "
                     + ", ".join(result["urgency_terms"])
                 )
 
@@ -88,8 +88,8 @@ with tab1:
             st.subheader("Duplicate Check")
             if is_duplicate:
                 st.warning(
-                    f"⚠️ {len(duplicates)} similar request(s) submitted recently "
-                    "— possible duplicate."
+                    f"⚠️ {len(duplicates)} similar request(s) submitted recently, "
+                    "possibly a duplicate."
                 )
                 st.dataframe(pd.DataFrame(duplicates), use_container_width=True)
             else:

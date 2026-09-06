@@ -1,14 +1,13 @@
 # Council Classifier
 
-**Machine learning for automated triage of UK local council service requests** — predicting the
+**Machine learning for automated triage of UK local council service requests:** predicting the
 handling department and priority of an incoming request, then generating a suggested response,
 historical resolution-time context and a duplicate-request check.
 
-MSc Data Science dissertation project (University of South Wales) built on three years of
-Swansea Council Freedom of Information data. The repository covers the full lifecycle: data
-exploration, model development across two prediction tasks, a hybrid ML + rule-based urgency
-layer, a decision-support layer, a Streamlit dashboard, and a containerised FastAPI service
-deployed to AWS ECS Fargate.
+A portfolio project built on three years of Swansea Council Freedom of Information data. It
+covers the full lifecycle: data exploration, model development across two prediction tasks, a
+hybrid ML and rule-based urgency layer, a decision-support layer, a Streamlit dashboard, and a
+containerised FastAPI service deployed to AWS ECS Fargate.
 
 [![CI](https://github.com/OutisAyo/council-classifier-/actions/workflows/ci.yml/badge.svg)](https://github.com/OutisAyo/council-classifier-/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.11-blue)
@@ -20,13 +19,21 @@ deployed to AWS ECS Fargate.
 
 | | |
 |---|---|
-| **Task 1 — Department classification** | 6 classes, Random Forest, **F1-macro 0.992** (accuracy 0.999) |
-| **Task 2 — Priority classification** | 3 classes, class-weighted Random Forest with TF-IDF + temporal features, **F1-macro 0.65**, HIGH-priority recall lifted from 0.34 → **0.63** |
+| **Task 1: department classification** | 6 classes, Random Forest, **F1-macro 0.992** |
+| **Task 2: priority classification** | 3 classes, class-weighted Random Forest with TF-IDF and temporal features, **F1-macro 0.65**, HIGH-priority recall lifted from 0.34 to 0.63 |
 | **Hybrid urgency layer** | Transparent rule-based override on top of the ML model, catching urgency language too rare (0.12% of records) to learn from directly |
-| **Decision support** | Department/priority-aware response templates + TF-IDF retrieval of similar historical requests + duplicate detection |
+| **Decision support** | Department and priority aware response templates, TF-IDF retrieval of similar historical requests, and duplicate detection |
 | **Serving** | FastAPI `/classify` endpoint, Docker image, deployed on AWS ECS Fargate; Streamlit dashboard for interactive use |
 
 ---
+
+## Dashboard
+
+The Streamlit dashboard (`dashboard/app.py`) wraps the same prediction code that backs the API.
+
+![Dashboard: classifying a request](assets/dashboard-classify.png)
+
+![Dashboard: data insights](assets/dashboard-insights.png)
 
 ## Problem
 
@@ -38,7 +45,7 @@ automate that triage.
 
 ## Dataset
 
-Swansea Council FOI release covering **2022–2024**: category code, complaint-type code,
+Swansea Council FOI release covering **2022-2024**: category code, complaint-type code,
 assigned department, and received / target / closed dates.
 
 | Stage | Rows |
@@ -48,15 +55,15 @@ assigned department, and received / target / closed dates.
 | After removing rows without a derivable priority label | **254,377** |
 
 **Departments (6):** Waste Management (78%), Pollution Division, Housing Division, Licensing
-Division, Food and Safety Division, Trading Standards Division — heavily imbalanced, so
-**F1-macro is the headline metric** throughout.
+Division, Food and Safety Division, Trading Standards Division. The classes are heavily
+imbalanced, so **F1-macro is the headline metric** throughout.
 
-**Priority label** is derived from resolution time (`date_closed − date_received`):
+**Priority label** is derived from resolution time (`date_closed` minus `date_received`):
 
 | Priority | Definition | Share |
 |---|---|---|
 | HIGH | closed within 1 day | 25.6% |
-| MEDIUM | closed within 2–7 days | 27.1% |
+| MEDIUM | closed within 2 to 7 days | 27.1% |
 | LOW | took more than 7 days | 47.3% |
 
 The raw dataset is **not redistributed here**. See [`models/README.md`](models/README.md) for how
@@ -80,58 +87,58 @@ flowchart LR
     H --> I[Response template<br/>+ resolution-time context<br/>+ similar requests<br/>+ duplicate flag]
 ```
 
-### Task 1 — Department classification (notebooks 03–07)
+### Task 1: department classification (notebooks 03-07)
 
 Naive Bayes, Logistic Regression, Random Forest and XGBoost were compared on a stratified
-hold-out set. All four exceeded 0.99 accuracy; **Random Forest** won on F1-macro (0.9921) and
-was selected. Diagnostic analysis showed the task is largely solved by category vocabulary
-alone — 99.9% of records come from category codes with >90% single-department dominance — which
-is why more sophisticated models gave diminishing returns.
+hold-out set. **Random Forest** won on F1-macro (0.9921) and was selected. Diagnostic analysis
+showed the task is largely solved by category vocabulary alone: 99.9% of records come from
+category codes with over 90% single-department dominance, which is why more sophisticated
+models gave diminishing returns.
 
-### Task 2 — Priority classification (notebooks 08–18)
+### Task 2: priority classification (notebooks 08-18)
 
-Much harder: the same four algorithms all plateaued at ~0.61 F1-macro with HIGH-priority
-recall stuck near 0.34. Feature-importance diagnostics revealed why — the standardised
+Much harder: the same four algorithms all plateaued around 0.61 F1-macro with HIGH-priority
+recall stuck near 0.34. Feature-importance diagnostics revealed why: the standardised
 staff-assigned category codes carry almost none of the urgency signal that would sit in
 original citizen-submitted text. A sequence of targeted enhancements followed:
 
-| Stage | Accuracy | F1-macro | HIGH recall |
-|---|---|---|---|
-| Baseline (Naive Bayes) | 0.629 | 0.590 | 0.34 |
-| Best base model (Random Forest) | 0.660 | 0.610 | 0.34 |
-| + class weighting | 0.649 | 0.620 | 0.45 |
-| + TF-IDF + n-grams | 0.649 | 0.620 | 0.45 |
-| **+ temporal features (day-of-week, month)** | **0.676** | **0.653** | **0.63** |
-| + department feature & Grid-Search tuning (nb 17) | 0.675 | 0.655 | 0.59 |
+| Stage | F1-macro | HIGH recall |
+|---|---|---|
+| Baseline (Naive Bayes) | 0.590 | 0.34 |
+| Best base model (Random Forest) | 0.610 | 0.34 |
+| + class weighting | 0.620 | 0.45 |
+| + TF-IDF and n-grams | 0.620 | 0.45 |
+| **+ temporal features (day-of-week, month)** | **0.653** | **0.63** |
+| + department feature and Grid-Search tuning (nb 17) | 0.655 | 0.59 |
 
 Temporal features were the turning point. The production pipeline
-(`priority_pipeline_final.pkl`) is **TF-IDF (1–2 grams) + day-of-week + month + class-weighted
-Random Forest**, wrapped in a single scikit-learn `ColumnTransformer` pipeline. `date_closed`
-is never used as an input — only information available when the request is filed.
+(`priority_pipeline_final.pkl`) is **TF-IDF (1 to 2 grams) + day-of-week + month +
+class-weighted Random Forest**, wrapped in a single scikit-learn `ColumnTransformer` pipeline.
+`date_closed` is never used as an input, only information available when the request is filed.
 
 ### Hybrid urgency layer (notebook 18)
 
 Explicit urgency language ("urgent", "dangerous", "no water", "elderly") appears in only
-**0.12%** of records — far too sparse to train on. Instead a hand-built lexicon in three
+**0.12%** of records, far too sparse to train on. Instead a hand-built lexicon in three
 categories (*explicit*, *hazard*, *distress*) is checked against each request; any match
 escalates `final_priority` to HIGH regardless of the model output. The response always reports
-**which** terms triggered the escalation, keeping the decision auditable — a common pattern in
+**which** terms triggered the escalation, keeping the decision auditable, a common pattern in
 real triage systems.
 
 ### Decision-support layer (notebook 15)
 
-- **Response templates** — one per (department × priority), e.g. a HIGH Pollution Division
+- **Response templates:** one per (department by priority), e.g. a HIGH Pollution Division
   request gets an escalation-worded acknowledgement.
-- **Retrieval context** — the incoming request is TF-IDF-vectorised and cosine-matched against
+- **Retrieval context:** the incoming request is TF-IDF-vectorised and cosine-matched against
   all 254k historical requests; the average resolution time of the closest matches is appended
   to the response ("this typically takes around 24 days to resolve").
-- **Duplicate detection** — flags when a near-identical request was filed in the last 7 days,
+- **Duplicate detection:** flags when a near-identical request was filed in the last 7 days,
   a proxy for multiple citizens reporting the same underlying issue.
 
 ## Repository structure
 
 ```
-council-classifier-/
+council-classifier/
 ├── app/                     FastAPI service
 │   ├── main.py              routes: /health, /classify
 │   ├── schemas.py           Pydantic request/response models
@@ -139,7 +146,7 @@ council-classifier-/
 │   └── predictor.py         end-to-end prediction + decision support
 ├── dashboard/
 │   └── app.py               Streamlit UI (classification + data insights)
-├── notebooks/               01–18, the full development narrative
+├── notebooks/               01-18, the full development narrative
 ├── models/                  *.pkl artifacts, stored via Git LFS (see models/README.md)
 ├── tests/                   pytest suite (schema + API)
 ├── Dockerfile
@@ -222,7 +229,7 @@ The same image runs unchanged locally, on Fargate, or on any container host.
 Python 3.11 · scikit-learn 1.6 · XGBoost · pandas / NumPy · FastAPI · Pydantic v2 · Uvicorn ·
 Streamlit · Docker · AWS ECR + ECS Fargate · pytest · Ruff · GitHub Actions
 
-## Limitations & future work
+## Limitations and future work
 
 - **Priority ceiling.** ~0.65 F1-macro reflects a genuine information limit: the FOI extract
   contains staff-assigned codes, not raw citizen text. Access to original request wording
@@ -231,14 +238,14 @@ Streamlit · Docker · AWS ECR + ECS Fargate · pytest · Ruff · GitHub Actions
   team capacity and backlog, not just true urgency.
 - **Urgency lexicon** is hand-curated and English-only; it would need review with council
   staff and periodic updating before real use.
-- **No online learning** — models are static and would need scheduled retraining as request
+- **No online learning.** Models are static and would need scheduled retraining as request
   patterns shift.
 - Retrieval and duplicate checks run in-process against the full dataset; a production version
   would move these to a vector store.
 
 ## Author
 
-**Fashina Fuad Ayomide** — MSc Data Science, University of South Wales.
+**Fashina Fuad Ayomide** ([@OutisAyo](https://github.com/OutisAyo))
 
 ## License
 
