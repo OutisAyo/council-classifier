@@ -1,0 +1,20 @@
+[project]
+name = "council-classifier"
+version = "1.0.0"
+description = "ML triage for UK local council service requests: department + priority prediction with a decision-support layer."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Fashina Fuad Ayomide" }]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = ["notebooks", "venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "C4", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
